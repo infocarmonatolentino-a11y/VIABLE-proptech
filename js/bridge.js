@@ -5,7 +5,7 @@
    postMessage: el dashboard abre esta misma página en una pestaña nueva con
    ?id=<uuid-del-estudio>, y aquí dentro se hace todo directamente:
 
-     Dashboard_v4.html  --window.open('index.html?id=…')-->  index.html
+     index.html  --window.open('calculadora.html?id=…')-->  calculadora.html
 
    Cómo viaja la sesión: las dos páginas están en el MISMO origen, y
    supabase-js guarda la sesión en localStorage, así que la pestaña nueva
@@ -120,7 +120,7 @@ async function arrancarModoDashboard(){
       texto:'O no existe, o tu usuario no tiene permiso para verlo. Vuelve al panel e inténtalo de nuevo.',
       tipo:'error', aceptar:'Volver al panel'
     });
-    location.href = 'Dashboard_v4.html';
+    location.href = 'index.html';
     return true;
   }
 
@@ -264,7 +264,7 @@ function mostrarBarraDashboard(){
   const bar = document.createElement('div');
   bar.id = 'barraDashboard';
   bar.innerHTML = `
-    <a class="bd-volver" id="bdVolver" href="Dashboard_v4.html">← Volver al panel</a>
+    <a class="bd-volver" id="bdVolver" href="index.html">← Volver al panel</a>
     <div class="bd-titulo" id="bdTitulo">Estudio de viabilidad</div>
     <select class="bd-select" id="bdSelectEstado" title="Estado del estudio, el mismo que ve Dirección en el panel" style="display:none;">
       <option value="borrador">Borrador</option>
@@ -367,7 +367,7 @@ async function pantallaSinSesion(){
     texto:'Entra primero en el panel (Torre de Control) y abre el estudio desde ahí: esta pestaña usa la misma sesión.',
     tipo:'aviso', aceptar:'Ir al panel'
   });
-  location.href = 'Dashboard_v4.html';
+  location.href = 'index.html';
 }
 
 /* =========================================================================
