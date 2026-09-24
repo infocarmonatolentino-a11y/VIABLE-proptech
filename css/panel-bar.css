@@ -1,0 +1,62 @@
+/* =========================================================================
+   BARRA SUPERIOR DEL MODO PANEL (index.html?id=…)
+   -------------------------------------------------------------------------
+   Solo aparece cuando la app se abre desde la Torre de Control. En modo
+   suelto este archivo no pinta nada: ningún elemento lleva estas clases.
+   Se mantiene en un archivo aparte para no tocar styles.css, que ya está
+   probado y es largo.
+   ========================================================================= */
+#barraDashboard{
+  position:fixed; top:0; left:0; right:0; height:44px; z-index:300;
+  display:flex; align-items:center; gap:14px; padding:0 16px;
+  background:#0F2A3D; color:#fff;
+  font-family:Inter, system-ui, sans-serif; font-size:13px;
+  box-shadow:0 1px 0 rgba(255,255,255,.08), 0 6px 20px rgba(0,0,0,.18);
+}
+.bd-volver{
+  color:#9BD3F0; text-decoration:none; font-weight:600; white-space:nowrap;
+  padding:6px 10px; border-radius:6px;
+}
+.bd-volver:hover{ background:rgba(255,255,255,.10); }
+.bd-titulo{
+  font-weight:600; font-size:14px; color:#fff;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  border-left:1px solid rgba(255,255,255,.18); padding-left:14px;
+}
+.bd-select{
+  background:rgba(255,255,255,.10); color:#fff; border:1px solid rgba(255,255,255,.25);
+  border-radius:6px; padding:5px 8px; font-family:inherit; font-size:12.5px; cursor:pointer;
+}
+.bd-select option{ color:#0F2A3D; background:#fff; }
+.bd-estado{ margin-left:auto; opacity:.75; white-space:nowrap; }
+.bd-estado.is-ok{ color:#9BE6B4; opacity:1; }
+.bd-estado.is-warn{ color:#FFD08A; opacity:1; }
+.bd-estado.is-error{ color:#FF9C8A; opacity:1; }
+.bd-guardar{
+  background:#fff; color:#0F2A3D; border:none; border-radius:6px;
+  padding:7px 16px; font-weight:600; font-size:13px; cursor:pointer;
+  font-family:inherit;
+}
+.bd-guardar:hover{ background:#E8F3F9; }
+.bd-guardar:disabled{ opacity:.6; cursor:default; }
+
+/* Hueco para la barra: la app y sus dos elementos "sticky" bajan 44px. */
+body.con-barra-dashboard .app{ padding-top:44px; }
+body.con-barra-dashboard .rail{ top:44px; height:calc(100vh - 44px); }
+body.con-barra-dashboard .kpibar{ top:44px; }
+
+@media print{
+  #barraDashboard{ display:none !important; }
+  body.con-barra-dashboard .app{ padding-top:0; }
+}
+@media (max-width:820px){
+  .bd-titulo{ display:none; }
+}
+
+/* ============ SOLO LECTURA (estudio compartido, no eres el dueño) ============ */
+body.viable-solo-lectura input:disabled,
+body.viable-solo-lectura select:disabled,
+body.viable-solo-lectura textarea:disabled{
+  background:#F2F2F0 !important; color:#6b6b68 !important;
+  cursor:not-allowed; box-shadow:none !important; opacity:1;
+}

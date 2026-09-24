@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudio de Viabilidad — Promoción Inmobiliaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=1.3.1">
+<link rel="stylesheet" href="css/panel-bar.css?v=1.3.1">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== PANTALLA DE BIENVENIDA ===================== -->
+  <div id="welcomeOverlay" class="welcome-overlay">
+    <div class="welcome-card">
+      <div class="welcome-eyebrow">Estudio de viabilidad · Promoción inmobiliaria</div>
+      <h2 class="welcome-title">¿Qué quieres hacer?</h2>
+      <div class="welcome-options" id="welcomeOptions"></div>
+      <div class="welcome-sub-panel" id="welcomeSubPanel" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ===================== RAIL / NAV ===================== -->
+  <aside class="rail" id="rail">
+    <div class="rail-head">
+      <div class="rail-eyebrow">Estudio de viabilidad</div>
+      <div class="rail-title">Promoción inmobiliaria</div>
+      <div class="rail-sub" id="railProjectName">16 viviendas</div>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="nav-group-label">Datos de entrada</div>
+      <button data-tab="inputs" class="active"><span class="idx">H.00</span> Inputs</button>
+      <div class="nav-group-label">Hojas de cálculo</div>
+      <button data-tab="ingresos"><span class="idx">H.01</span> Ingresos</button>
+      <button data-tab="costes"><span class="idx">H.02</span> Costes</button>
+      <button data-tab="financiacion"><span class="idx">H.03</span> Financiación</button>
+      <button data-tab="cashflow"><span class="idx">H.04</span> Cash-Flow</button>
+      <button data-tab="resumen"><span class="idx">H.05</span> Resumen</button>
+      <button data-tab="sensibilidad"><span class="idx">H.06</span> Sensibilidad</button>
+      <div class="nav-group-label">Herramientas de negociación</div>
+      <button data-tab="comparador"><span class="idx">T.01</span> Comparador ofertas</button>
+      <button data-tab="residual"><span class="idx">T.02</span> Valorador Suelo</button>
+      <button data-tab="express"><span class="idx">T.03</span> Cálculo Express</button>
+      <div class="nav-group-label">Documentación</div>
+      <button data-tab="notas"><span class="idx">H.07</span> Notas</button>
+    </nav>
+  </aside>
+
+  <main>
+    <!-- ===================== KPI RIBBON ===================== -->
+    <div class="kpibar">
+      <button class="menu-btn" id="menuBtn" aria-label="Abrir menú">☰</button>
+      <div class="kpi">
+        <div class="kpi-label">Beneficio neto</div>
+        <div class="kpi-value" id="kpiBeneficioNeto">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">TIR anual equity</div>
+        <div class="kpi-value" id="kpiTir">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">MIRR anual</div>
+        <div class="kpi-value" id="kpiMirr">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">VAN equity</div>
+        <div class="kpi-value" id="kpiVan">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Payback</div>
+        <div class="kpi-value" id="kpiPayback">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Margen s/ventas</div>
+        <div class="kpi-value" id="kpiMargen">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">ROE anual (equity total)</div>
+        <div class="kpi-value" id="kpiRoeTotal">—</div>
+      </div>
+      <div class="checks" id="checksRow"></div>
+      <div class="logo-btn-wrap">
+        <button class="print-btn" id="btnLogoToggle" type="button" title="Sube el logo de tu empresa para que aparezca en la portada del PDF">🖼 Logo PDF</button>
+        <div class="logo-panel" id="logoPanel" style="display:none;">
+          <label>Logo de la empresa</label>
+          <input type="file" id="logoUploadInput" accept="image/png,image/jpeg,image/svg+xml">
+          <img id="logoPreviewImg" src="" style="display:none;">
+          <button type="button" class="btn" id="btnQuitarLogo" style="display:none;">Quitar logo</button>
+          <div class="helper">Se guarda dentro del propio estudio, sin archivos externos. PNG, JPG o SVG, máx. 2MB.</div>
+        </div>
+      </div>
+      <button class="print-btn" id="btnPrint" title="Abre el diálogo de impresión del navegador. Elige 'Guardar como PDF' como destino. Si tu navegador ofrece la opción 'Ajustar al ancho de la página', actívala para que la tabla de Cash-Flow quepa entera.">🖨 Imprimir / PDF</button>
+    </div>
+
+    <div class="content">
+
+      <!-- ===================== PORTADA DE IMPRESIÓN (solo visible al imprimir) ===================== -->
+      <div class="print-cover" id="printCover">
+        <img id="printCoverLogo" class="logo" style="display:none;">
+        <div class="eyebrow">Estudio de viabilidad — Promoción inmobiliaria</div>
+        <h1 id="printCoverTitle"></h1>
+        <div class="addr" id="printCoverAddress"></div>
+        <div class="meta" id="printCoverMeta"></div>
+        <div class="kpis" id="printCoverKpis"></div>
+        <div class="legal-footer" id="printCoverLegal"></div>
+      </div>
+
+      <!-- ===================== PANEL: INPUTS ===================== -->
+      <section class="panel active" data-panel="inputs">
+        <h1 class="page-title">Hoja de entrada de datos</h1>
+        <p class="page-desc">Las mismas variables que la hoja "Inputs" del Excel. Cambia cualquier valor y el resto de hojas se recalculan al instante.</p>
+
+        <div class="toolbar">
+          <button class="btn primary solo-modo-local" id="btnNuevoEstudio">+ Nuevo estudio</button>
+          <button class="btn solo-modo-local" id="btnGuardarEstudio">Guardar estudio</button>
+          <button class="btn solo-modo-local" id="btnMisEstudios">Mis estudios</button>
+          <button class="btn" id="btnGuardarPlantilla">Guardar como plantilla de supuestos</button>
+          <button class="btn" id="btnReset">Restablecer valores de fábrica</button>
+          <button class="btn" id="btnExport">Exportar datos (JSON)</button>
+          <button class="btn" id="btnImport">Importar datos (JSON)</button>
+          <input type="file" id="fileImport" accept="application/json" style="display:none;">
+          <span style="font-size:11.5px; color:#8A9AA3; margin-left:6px;">Se guarda automáticamente en este navegador.</span>
+        </div>
+        <div id="misEstudiosPanel" class="estudios-panel" style="display:none;"></div>
+        <div class="card-hint" id="plantillaHint" style="margin:-6px 0 16px;"></div>
+
+        <div class="subnav">
+          <a href="#sec-1" data-family="estructura"><span class="subnav-dot"></span>1. Identificación</a>
+          <a href="#sec-2" data-family="estructura"><span class="subnav-dot"></span>2. Urbanismo</a>
+          <a href="#sec-4" data-family="construccion"><span class="subnav-dot"></span>3. Suelo</a>
+          <a href="#sec-7" data-family="fiscal"><span class="subnav-dot"></span>4. Licencias</a>
+          <a href="#sec-5" data-family="construccion"><span class="subnav-dot"></span>5. Construcción</a>
+          <a href="#sec-3" data-family="producto"><span class="subnav-dot"></span>6. Precios de venta</a>
+          <a href="#sec-8" data-family="comercial"><span class="subnav-dot"></span>7. Comercialización</a>
+          <a href="#sec-6" data-family="construccion"><span class="subnav-dot"></span>8. Honorarios</a>
+          <a href="#sec-9" data-family="comercial"><span class="subnav-dot"></span>9. Otros gastos</a>
+          <a href="#sec-10" data-family="fiscal"><span class="subnav-dot"></span>10. Financiación</a>
+          <a href="#sec-11" data-family="comercial"><span class="subnav-dot"></span>11. Cronograma</a>
+        </div>
+
+        <div class="color-legend">
+          <span class="legend-item"><span class="legend-swatch legend-swatch-editable"></span>Tú lo rellenas</span>
+          <span class="legend-item"><span class="legend-swatch legend-swatch-computed"></span>Lo calcula la app</span>
+        </div>
+
+        <div id="inputsHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: INGRESOS ===================== -->
+      <section class="panel" data-panel="ingresos">
+        <h1 class="page-title">1. Estimación de ingresos por ventas</h1>
+        <p class="page-desc">Ingresos por tipología de producto, calculados a partir de la tabla de precios de Inputs.</p>
+        <div id="ingresosHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: COSTES ===================== -->
+      <section class="panel" data-panel="costes">
+        <h1 class="page-title">2. Costes totales de la promoción (CAPEX)</h1>
+        <p class="page-desc">Desglose completo: suelo, construcción, honorarios, licencias, comercialización, otros gastos y gastos financieros.</p>
+        <div id="costesHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: FINANCIACION ===================== -->
+      <section class="panel" data-panel="financiacion">
+        <h1 class="page-title">3. Estructura de financiación</h1>
+        <p class="page-desc">Reparto entre préstamo promotor y capital propio, y ratios de apalancamiento.</p>
+        <div id="financiacionHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: CASHFLOW ===================== -->
+      <section class="panel" data-panel="cashflow">
+        <h1 class="page-title">4. Cash-flow mensual del proyecto</h1>
+        <p class="page-desc">Mes 0 = compra del solar. Cobros, pagos, disposición y amortización del préstamo, e indicadores de rentabilidad del equity.</p>
+        <div id="cashflowHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: RESUMEN ===================== -->
+      <section class="panel" data-panel="resumen">
+        <h1 class="page-title">5. Resumen ejecutivo y ratios de viabilidad</h1>
+        <p class="page-desc">Cuenta de resultados del proyecto, ratios de rentabilidad y comprobaciones automáticas.</p>
+        <div id="resumenHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: SENSIBILIDAD ===================== -->
+      <section class="panel" data-panel="sensibilidad">
+        <h1 class="page-title">6. Análisis de escenarios y sensibilidad</h1>
+        <p class="page-desc">Ocho escenarios de precio, coste y plazo; matriz de doble entrada; y puntos de equilibrio.</p>
+        <div id="sensibilidadHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: COMPARADOR DE OFERTAS ===================== -->
+      <section class="panel" data-panel="comparador">
+        <h1 class="page-title">7. Comparador de ofertas de compra del suelo</h1>
+        <p class="page-desc">Compara varias estructuras de oferta de compra del suelo (efectivo, permuta, aplazado...) con el mismo resto del estudio — qué le conviene más al promotor, y qué recibe cada copropietario en cada una.</p>
+        <div id="comparadorHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: VALORADOR DE SUELO POR RESIDUAL ===================== -->
+      <section class="panel" data-panel="residual">
+        <h1 class="page-title">8. Valorador de suelo por residual</h1>
+        <p class="page-desc">Al revés que el resto del estudio: en vez de partir de un precio de suelo y ver qué margen deja, calcula el precio máximo que puedes pagar para un margen objetivo.</p>
+        <div id="residualHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: CÁLCULO EXPRESS ===================== -->
+      <section class="panel" data-panel="express">
+        <h1 class="page-title">9. Cálculo Express — sin anteproyecto</h1>
+        <p class="page-desc">Para cuando todavía no tienes el anteproyecto del arquitecto, solo superficies y precios de zona. A diferencia del Valorador de suelo (que trabaja sobre tu estudio completo ya relleno), este arranca de cero con solo 12 datos — usa los mismos porcentajes calibrados del Estudio Completo para todo lo demás (honorarios, licencias, financiación...).</p>
+        <div class="card" style="border-color:var(--brick); background:#FFF8F0;">
+          <div class="card-hint" style="color:var(--brick); font-weight:600; margin-bottom:0;">⚠ Esto es una estimación con supuestos estándar declarados, no el cálculo preciso. En cuanto tengas el anteproyecto del arquitecto (superficies reales por vivienda, memoria de calidades...), pasa al Estudio Completo — ahí es donde la app calcula con precisión real, no aproximada.</div>
+        </div>
+
+        <div class="card">
+          <h3>¿Qué quieres saber?</h3>
+          <div class="segmented" id="expressModoSegmented">
+            <button type="button" class="segmented-opt active" data-modo="A">Modo A — Tengo un precio de suelo, ¿es viable?</button>
+            <button type="button" class="segmented-opt" data-modo="B">Modo B — Todavía no hay precio, ¿cuánto puedo ofrecer?</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Superficies y producto</h3>
+          <div class="field-grid">
+            <div class="field"><label>Techo total sobre rasante</label><div class="with-suffix"><input type="number" id="exp_techoSR" value="1430"><span>m²</span></div></div>
+            <div class="field"><label>Techo total bajo rasante</label><div class="with-suffix"><input type="number" id="exp_techoBR" value="408"><span>m²</span></div><div class="helper">Garajes — se asume que no hay trastero separado en este cálculo rápido</div></div>
+            <div class="field"><label>De ese techo sobre rasante, m² de local comercial</label><div class="with-suffix"><input type="number" id="exp_m2Local" value="0"><span>m²</span></div><div class="helper">El resto del techo sobre rasante se reparte entre vivienda libre y VPO</div></div>
+            <div class="field"><label>% mínimo de techo (vivienda) en VPO</label><div class="with-suffix"><input type="number" id="exp_pctVPO" value="0"><span>%</span></div></div>
+            <div class="field" id="exp_precioVPO_wrap" style="display:none;"><label>Precio de venta VPO</label><div class="with-suffix"><input type="number" id="exp_precioVPO" value="2600"><span>€/m²</span></div><div class="helper">Precio tasado, no de mercado — lo fija la administración</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Costes de construcción (€/m²)</h3>
+          <div class="field-grid">
+            <div class="field"><label>Coste construcción sobre rasante</label><div class="with-suffix"><input type="number" id="exp_costeSR" value="1400"><span>€/m²</span></div></div>
+            <div class="field"><label>Coste construcción bajo rasante</label><div class="with-suffix"><input type="number" id="exp_costeBR" value="700"><span>€/m²</span></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Precios de venta</h3>
+          <div class="field-grid">
+            <div class="field"><label>Precio venta vivienda libre</label><div class="with-suffix"><input type="number" id="exp_precioVivienda" value="4200"><span>€/m²</span></div></div>
+            <div class="field"><label>Precio venta local comercial</label><div class="with-suffix"><input type="number" id="exp_precioLocal" value="1800"><span>€/m²</span></div></div>
+            <div class="field"><label>Precio de venta por plaza de parking</label><div class="with-suffix"><input type="number" id="exp_precioParking" value="25000"><span>€/ud.</span></div><div class="helper">Se estima 1 plaza cada 27 m² de techo bajo rasante</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Plazo y suelo</h3>
+          <div class="field-grid">
+            <div class="field"><label>Duración estimada del proyecto</label><div class="with-suffix"><input type="number" id="exp_duracion" value="30"><span>meses</span></div><div class="helper">Desde la compra del suelo hasta la entrega + escrituración. El resto del cronograma se reparte a partir de este único dato (ver Notas)</div></div>
+            <div class="field" id="exp_precioSuelo_wrap"><label>Precio del suelo</label><div class="with-suffix"><input type="number" id="exp_precioSuelo" value="1000000"><span>€</span></div></div>
+            <div class="field" id="exp_margenObjetivo_wrap" style="display:none;"><label>Margen mínimo exigido sobre ventas</label><div class="with-suffix"><input type="number" id="exp_margenObjetivo" value="20"><span>%</span></div></div>
+          </div>
+          <button type="button" class="btn" id="btnCalcularExpress" style="margin-top:16px; font-size:14px; padding:12px 24px;">⚡ Calcular</button>
+        </div>
+
+        <div id="expressResultHost"></div>
+      </section>
+
+      <!-- ===================== PANEL: NOTAS ===================== -->
+      <section class="panel" data-panel="notas">
+        <h1 class="page-title">Criterios del modelo</h1>
+        <p class="page-desc">Cómo está construido el cálculo, para saber qué esperar de cada cifra.</p>
+        <div id="notasHost"></div>
+      </section>
+
+    </div>
+    <footer class="note" style="margin:0 30px 30px 30px;">Herramienta de cálculo para uso interno. No sustituye el asesoramiento fiscal, legal o financiero profesional. <span id="versionTag" style="opacity:.55;"></span></footer>
+  </main>
+</div>
+
+<!-- supabase-js solo hace falta cuando esta pagina se abre desde el panel
+     (index.html?id=...). Si se abre suelta y sin internet, la linea falla en
+     silencio y la app sigue funcionando al 100% en modo local. Mismo CDN que
+     usa Dashboard_V4.html, para no cargar dos versiones distintas. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js?v=1.3.1"></script>
+<script src="js/dialogo.js?v=1.3.1"></script>
+<script src="js/reportar.js?v=1.3.1"></script>
+<script>document.getElementById('versionTag').textContent = 'v' + (window.VERSION_APP || '?');</script>
+<script src="js/config.js?v=1.3.1"></script>
+<script src="js/engine.js?v=1.3.1"></script>
+<script src="js/format.js?v=1.3.1"></script>
+<script src="js/state.js?v=1.3.1"></script>
+<script src="js/bridge.js?v=1.3.1"></script>
+<script src="js/ui-inputs.js?v=1.3.1"></script>
+<script src="js/express.js?v=1.3.1"></script>
+<script src="js/ofertas.js?v=1.3.1"></script>
+<script src="js/ui-outputs.js?v=1.3.1"></script>
+<script src="js/app.js?v=1.3.1"></script>
+</body>
+</html>

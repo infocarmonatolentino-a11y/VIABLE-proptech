@@ -1,0 +1,114 @@
+name: Copia de seguridad diaria de VIABLE
+
+# El plan gratuito de Supabase no incluye recuperación a un punto en el
+# tiempo. Este workflow hace lo que ese plan daría por defecto: un volcado
+# completo de la base de datos cada día, guardado donde YA tienes copia de
+# este código (no hace falta contratar nada más).
+#
+# CÓMO SE GUARDA EL VOLCADO
+# Como "artifact" del propio workflow — un archivo adjunto a cada ejecución,
+# descargable desde la pestaña Actions de GitHub. Es la opción más sencilla
+# de las tres, sin credenciales de un proveedor externo, pero GitHub borra
+# los artifacts pasados los días que se indique (aquí, 35 — ver "retention").
+# Para guardarlas más tiempo, súbelas también a un storage aparte (S3,
+# Backblaze, un bucket de Supabase Storage de OTRO proyecto): al final de
+# este archivo hay un paso comentado, listo para activar, si llegas a
+# necesitarlo.
+#
+# QUÉ HACE FALTA CONFIGURAR (una vez)
+# En GitHub: Settings → Secrets and variables → Actions → New repository
+# secret → nombre SUPABASE_DB_URL, valor la cadena de conexión de tu
+# proyecto (Supabase → Project Settings → Database → Connection string →
+# modo "URI", con la contraseña ya puesta). Usa el puerto 5432 (conexión
+# directa), no el 6543 del pooler: pg_dump necesita la conexión directa.
+
+"on":
+  schedule:
+    # 03:15 UTC todos los días — de madrugada en España, para no competir
+    # con nadie usando la app. Cambia la hora si tu base de clientes está en
+    # otro huso horario donde esto no sea de madrugada.
+    - cron: '15 3 * * *'
+  workflow_dispatch:   # además, un botón para lanzarlo a mano cuando quieras
+
+jobs:
+  copia-de-seguridad:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar el cliente de PostgreSQL
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Volcar la base de datos
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "Falta el secreto SUPABASE_DB_URL. Configúralo en Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          fecha=$(date -u +'%Y-%m-%d')
+          pg_dump "$SUPABASE_DB_URL" \
+            --format=custom \
+            --no-owner --no-privileges \
+            --file="viable-${fecha}.dump"
+          echo "Volcado escrito: viable-${fecha}.dump ($(du -h viable-${fecha}.dump | cut -f1))"
+
+      - name: Guardar como artifact de esta ejecución
+        uses: actions/upload-artifact@v4
+        with:
+          name: copia-de-seguridad-viable
+          path: viable-*.dump
+          retention-days: 35
+
+      # ------------------------------------------------------------------
+      # OPCIONAL: además de GitHub, sube la copia a un storage con retención
+      # más larga. Descomenta el paso que uses y añade sus secretos.
+      # ------------------------------------------------------------------
+
+      # - name: Subir también a un bucket S3 / Backblaze B2
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_KEY }}
+      #     AWS_DEFAULT_REGION: ${{ secrets.BACKUP_S3_REGION }}
+      #   run: |
+      #     fecha=$(date -u +'%Y-%m-%d')
+      #     aws s3 cp "viable-${fecha}.dump" "s3://tu-bucket-de-copias/viable-${fecha}.dump" \
+      #       --endpoint-url "${{ secrets.BACKUP_S3_ENDPOINT }}"   # solo hace falta con Backblaze/otros compatibles con S3; con AWS de verdad, quita esta línea
+
+  restaurar-de-prueba:
+    # No es obligatorio, pero una copia que nunca se ha intentado restaurar
+    # no es una copia de seguridad, es una promesa. Este job separado, a
+    # mano, restaura el último volcado sobre una base de Postgres limpia
+    # DENTRO del propio runner de GitHub — nunca toca tu proyecto real — y
+    # falla si algo en la restauración no sale bien. Lánzalo de vez en
+    # cuando desde la pestaña Actions ("Run workflow") para comprobar que la
+    # copia sirve de verdad, no solo que se generó.
+    if: false   # puesto a mano para que no corra en el cron diario; cambia a true (o lánzalo con workflow_dispatch aparte) cuando quieras probarlo
+    needs: copia-de-seguridad
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: prueba
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Instalar el cliente de PostgreSQL
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Descargar el volcado de este mismo run
+        uses: actions/download-artifact@v4
+        with:
+          name: copia-de-seguridad-viable
+
+      - name: Restaurar sobre el Postgres limpio del runner
+        run: |
+          archivo=$(ls viable-*.dump | head -n1)
+          pg_restore --no-owner --no-privileges \
+            -d "postgresql://postgres:prueba@localhost:5432/postgres" \
+            "$archivo"
+          echo "Restauración de prueba completada sin errores."
