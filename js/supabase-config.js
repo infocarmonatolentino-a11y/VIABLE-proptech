@@ -28,4 +28,4 @@ const ORGANIZACION_UNICA_ID = '00000000-0000-0000-0000-000000000001';
 
 // Ruta de la app de viabilidad vista desde el dashboard. Las dos están en la
 // raíz del proyecto, así que es simplemente "index.html".
-const VIABILIDAD_URL = 'index.html';
+const VIABILIDAD_URL = 'calculadora.html';
