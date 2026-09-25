@@ -1,6 +1,6 @@
 # VIABLE — versión 1.3.1
 
-Estudio de viabilidad de promociones inmobiliarias, con panel de gestión.
+Estudio de viabilidad de promociones inmobiliarias, con panel de gestión..
 
 **Esta carpeta sustituye entera a la que tenías.** No hay que mover archivos
 sueltos ni copiar nada a mano: descomprime, y esta pasa a ser tu carpeta de
